@@ -1,6 +1,6 @@
 # PROJ-1: User Authentication & Roles
 
-## Status: Planned
+## Status: In Progress
 **Created:** 2026-03-12
 **Last Updated:** 2026-03-12
 
@@ -46,7 +46,72 @@ All users — recreational athletes, course trainers, and fitness centre admins 
 <!-- Sections below are added by subsequent skills -->
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+
+### Component Structure
+
+```
+Public Pages (no login required)
++-- /register
+|   +-- Role Selector ("I'm an Athlete" / "I'm a Fitness Centre")
+|   +-- Registration Form (name, email, password)
+|   +-- Post-submit: "Check your email to confirm your account"
++-- /login
+|   +-- Login Form (email + password)
+|   +-- "Forgot password?" link
+|   +-- "Resend confirmation email" link (shown on certain errors)
++-- /forgot-password
+|   +-- Email input + submit button
+|   +-- Confirmation message
++-- /reset-password
+|   +-- New password form (requires valid token from email link)
++-- /invite/[token]
+    +-- Trainer Invitation Accept Page
+        +-- Displays: "You've been invited by [Centre Name]"
+        +-- Name + password setup form
+        +-- On submit: account created, redirected to trainer dashboard
+
+Route Protection Middleware (runs on every request)
++-- Is user logged in?
+|   No → redirect to /login
++-- Does the route match the user's role?
+    No → redirect to user's own home page
+
+Authenticated Home Pages (role-based redirect after login)
++-- Athlete      → /classes
++-- Trainer      → /trainer/dashboard
++-- Centre Admin → /centre/dashboard
+```
+
+### Data Model
+
+**Supabase Auth manages automatically:** unique user ID, email, encrypted password, and email confirmation status.
+
+**`profiles` table (our extension):**
+- `id` — links to the Supabase Auth user (same ID)
+- `role` — one of: `athlete`, `trainer`, `centre_admin`
+- `full_name` — display name
+- `avatar_url` — profile photo (stored in Supabase Storage)
+- `created_at` — when the profile was created
+
+**`invitations` table (trainer invite flow):**
+- `id` — unique invitation ID
+- `email` — the trainer's email address
+- `centre_id` — which fitness centre sent the invite
+- `token` — unique, unguessable code (sent in the email link)
+- `status` — `pending`, `accepted`, `expired`, or `declined`
+- `expires_at` — 7 days from when the invite was sent
+
+### Tech Decisions
+
+- **Supabase Auth** handles email confirmation, password reset, session tokens, and refresh tokens — we build none of that ourselves.
+- **Next.js Middleware** runs server-side before every page load to check session and role — prevents flash of protected content and enforces role-based redirects.
+- **Separate `profiles` table** extends Supabase Auth with our business concept of roles. A trigger auto-creates the profile row when a new user registers.
+- **Invitation-only trainers** — open trainer self-registration would create orphaned accounts with no centre; the invite flow ensures every trainer is associated with a centre from day one.
+- **Database-level role enforcement** via Supabase RLS policies — browser-side role checks are UX only; actual data access is controlled at the database level.
+
+### Dependencies
+- `@supabase/supabase-js` — Supabase client (auth + database)
+- `@supabase/ssr` — server-side session handling for Next.js App Router
 
 ## QA Test Results
 _To be added by /qa_
