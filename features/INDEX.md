@@ -12,7 +12,7 @@
 
 | ID | Feature | Status | Spec | Created |
 |----|---------|--------|------|---------|
-| PROJ-1 | User Authentication & Roles | In Progress | [PROJ-1-user-authentication-roles.md](PROJ-1-user-authentication-roles.md) | 2026-03-12 |
+| PROJ-1 | User Authentication & Roles | In Review | [PROJ-1-user-authentication-roles.md](PROJ-1-user-authentication-roles.md) | 2026-03-12 |
 | PROJ-2 | Fitness Centre Management | Planned | [PROJ-2-fitness-centre-management.md](PROJ-2-fitness-centre-management.md) | 2026-03-12 |
 | PROJ-3 | Class Scheduling (Trainer) | Planned | [PROJ-3-class-scheduling.md](PROJ-3-class-scheduling.md) | 2026-03-12 |
 | PROJ-4 | Class Discovery & Search | Planned | [PROJ-4-class-discovery-search.md](PROJ-4-class-discovery-search.md) | 2026-03-12 |
